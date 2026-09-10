@@ -14,20 +14,23 @@ import {
 } from '../types/tripwire';
 
 const API_BASE = 'http://localhost:8000/api/v1';
+const HEALTH_URL = 'http://localhost:8000/health';
 
 export class TripwireClient {
   private baseUrl: string;
+  private healthUrl: string;
 
-  constructor(baseUrl: string = API_BASE) {
+  constructor(baseUrl: string = API_BASE, healthUrl: string = HEALTH_URL) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
+    this.healthUrl = healthUrl.replace(/\/$/, '');
   }
 
   /**
-   * Health Check
+   * Health Check — Queries authoritative backend health endpoint (/health)
    */
   async checkHealth(): Promise<{ status: string; backendOnline: boolean }> {
     try {
-      const res = await fetch(`${this.baseUrl}/health`, { signal: AbortSignal.timeout(2000) });
+      const res = await fetch(this.healthUrl, { signal: AbortSignal.timeout(2000) });
       if (res.ok) {
         return { status: 'ONLINE', backendOnline: true };
       }
@@ -96,11 +99,11 @@ export class TripwireClient {
 
   /**
    * POST /api/v1/actions/{action_id}/confirm
+   * Human approval execution endpoint — called ONLY on human APPROVE.
    */
   async confirmAction(
     actionId: string,
-    approvedBy: string = 'admin_001',
-    approve: boolean = true
+    approvedBy: string = 'admin_001'
   ): Promise<{
     action_id: string;
     decision: DecisionType;
@@ -111,7 +114,7 @@ export class TripwireClient {
       const res = await fetch(`${this.baseUrl}/actions/${actionId}/confirm`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ approved_by: approvedBy, approve }),
+        body: JSON.stringify({ approved_by: approvedBy }),
       });
       if (res.ok) {
         return await res.json();
@@ -122,9 +125,9 @@ export class TripwireClient {
 
     return {
       action_id: actionId,
-      decision: approve ? 'ALLOW' : 'BLOCK',
+      decision: 'ALLOW',
       approved_by: approvedBy,
-      execution_status: approve ? 'EXECUTED' : 'NOT_EXECUTED',
+      execution_status: 'EXECUTED',
     };
   }
 

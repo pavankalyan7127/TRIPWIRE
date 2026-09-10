@@ -1,8 +1,8 @@
-# Tripwire — Model-Agnostic Runtime Security Harness for AI Agents
+# Tripwire — Model-Agnostic Runtime Security Harness (Backend)
 
 > **"The agent proposes. Tripwire decides. The protected tool executes only when Tripwire permits it."**
 
-Tripwire is a model-agnostic runtime security harness for AI agents. It sits directly on the execution boundary between an AI agent and protected tools, evaluating every proposed action against **Identity & Authorization Context**, **Action Classification & Reversibility**, and **Multi-Signal Behavioral Trajectory** before permitting tool execution.
+This is the backend implementation of Tripwire, a model-agnostic runtime security harness for AI agents. It sits directly on the execution boundary between an AI agent and protected tools, evaluating every proposed action against **Identity & Authorization Context**, **Action Classification & Reversibility**, and **Multi-Signal Behavioral Trajectory** before permitting tool execution.
 
 ---
 
@@ -100,7 +100,7 @@ $$\text{step\_score} = 0.30 \cdot \text{scope\_drift} + 0.35 \cdot \text{destruc
 
 ### 1. Install Dependencies
 ```bash
-cd Backend
+# Assuming you are in the Backend/ directory
 poetry install
 ```
 
@@ -124,10 +124,10 @@ Tripwire includes a self-contained, turnkey demonstration runner (`demo.py`) tha
 
 ```bash
 # Run the interactive demo menu
-python demo.py
+poetry run python demo.py
 
 # Or run all 4 canonical scenarios automatically
-poetry run python Backend/demo.py --all --auto
+poetry run python demo.py --all --auto
 ```
 
 ### Scenario 1 — Canonical Legitimate Agent (Monthly Finance Report)

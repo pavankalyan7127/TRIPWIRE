@@ -46,14 +46,14 @@ export const ToolRegistryView: React.FC<Props> = ({ executionCounts }) => {
       name: 'change_permissions',
       resource: 'system:permissions',
       reversibility: 'DESTRUCTIVE',
-      scope: 'system:admin',
+      scope: 'permissions:write',
       desc: 'Modify RBAC access permissions',
     },
     {
       name: 'drop_table',
       resource: 'db_schema:core',
       reversibility: 'DESTRUCTIVE',
-      scope: 'db:admin',
+      scope: 'schema:admin',
       desc: 'Permanently drop relational database table',
     },
   ];

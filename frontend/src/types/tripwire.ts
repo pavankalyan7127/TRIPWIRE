@@ -61,6 +61,8 @@ export interface AuditEvent {
   timestamp: string;
   parameters?: Record<string, any>;
   execution_status?: 'EXECUTED' | 'NOT_EXECUTED' | 'PENDING_APPROVAL';
+  approved_by?: string;
+  executed_at?: string;
 }
 
 export interface ScenarioStep {

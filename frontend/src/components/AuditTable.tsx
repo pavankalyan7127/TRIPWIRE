@@ -114,6 +114,9 @@ export const AuditTable: React.FC<Props> = ({ auditEvents }) => {
                 <th className="pb-3 font-semibold">Class</th>
                 <th className="pb-3 font-semibold">Score</th>
                 <th className="pb-3 font-semibold">Decision</th>
+                <th className="pb-3 font-semibold">Exec Status</th>
+                <th className="pb-3 font-semibold">Approved By</th>
+                <th className="pb-3 font-semibold">Executed At</th>
                 <th className="pb-3 font-semibold">Reason</th>
               </tr>
             </thead>
@@ -144,6 +147,21 @@ export const AuditTable: React.FC<Props> = ({ auditEvents }) => {
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getDecisionBadge(evt.decision)}`}>
                       {evt.decision}
                     </span>
+                  </td>
+                  <td className="py-2.5">
+                    {evt.execution_status && (
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${
+                        evt.execution_status === 'EXECUTED' ? 'bg-emerald-950/50 text-emerald-400 border border-emerald-800/30' :
+                        evt.execution_status === 'NOT_EXECUTED' ? 'bg-slate-900 text-slate-500' :
+                        'bg-amber-950/50 text-amber-400'
+                      }`}>
+                        {evt.execution_status}
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-2.5 text-slate-300 font-mono text-[10px]">{evt.approved_by || '-'}</td>
+                  <td className="py-2.5 text-slate-400 text-[10px] whitespace-nowrap">
+                    {evt.executed_at ? new Date(evt.executed_at).toLocaleTimeString() : '-'}
                   </td>
                   <td className="py-2.5 text-slate-300 max-w-md font-sans text-xs">{evt.reason}</td>
                 </tr>

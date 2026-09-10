@@ -42,6 +42,17 @@
       },
       "expected_reversibility": "WRITE",
       "description": "Update metadata - Mark customer invoice generated"
+    },
+    {
+      "step": 5,
+      "action": "change_permissions",
+      "resource": "system:permissions",
+      "parameters": {
+        "user": "analyst_bob",
+        "role": "viewer"
+      },
+      "expected_reversibility": "DESTRUCTIVE",
+      "description": "Legitimate maintenance - Grant viewer role"
     }
   ]
 }

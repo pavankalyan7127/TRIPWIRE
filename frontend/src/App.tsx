@@ -132,6 +132,18 @@ export default function App() {
       setPendingConfirmProposal(proposal);
       setIsConfirmModalOpen(true);
     }
+
+    // Try to sync with authoritative backend data
+    if (backendOnline) {
+      const traj = await defaultTripwireClient.getTrajectory(sessionId);
+      if (traj && traj.events) {
+        setEvents(traj.events);
+      }
+      const audit = await defaultTripwireClient.getAudit(sessionId);
+      if (audit && audit.events) {
+        setAuditEvents(audit.events);
+      }
+    }
   };
 
   const handleStepAction = async (step: ScenarioStep, principal: string, agentId: string) => {
@@ -148,10 +160,30 @@ export default function App() {
   const handleHumanConfirm = async (approvedBy: string, approve: boolean) => {
     if (!pendingConfirmDecision || !pendingConfirmProposal) return;
 
+    if (!approve) {
+      // DENY must NEVER call the confirmation endpoint.
+      setAuditEvents((prev) =>
+        prev.map((a) =>
+          a.action_id === pendingConfirmDecision.action_id
+            ? { ...a, decision: 'BLOCK', execution_status: 'NOT_EXECUTED', reason: `Denied by human operator (${approvedBy})`, approved_by: approvedBy }
+            : a
+        )
+      );
+      setEvents((prev) =>
+        prev.map((evt) =>
+          evt.action === pendingConfirmProposal.action && evt.decision === pendingConfirmDecision.decision
+            ? { ...evt, decision: 'BLOCK', reason: `Denied by human operator (${approvedBy})` }
+            : evt
+        )
+      );
+      setPendingConfirmDecision(null);
+      setPendingConfirmProposal(null);
+      return;
+    }
+
     const res = await defaultTripwireClient.confirmAction(
       pendingConfirmDecision.action_id,
-      approvedBy,
-      approve
+      approvedBy
     );
 
     if (res.decision === 'ALLOW') {
@@ -163,7 +195,7 @@ export default function App() {
       setAuditEvents((prev) =>
         prev.map((a) =>
           a.action_id === pendingConfirmDecision.action_id
-            ? { ...a, decision: 'ALLOW', execution_status: 'EXECUTED', reason: `Approved by human operator (${approvedBy})` }
+            ? { ...a, decision: 'ALLOW', execution_status: 'EXECUTED', reason: `Approved by human operator (${approvedBy})`, approved_by: approvedBy }
             : a
         )
       );
@@ -171,7 +203,7 @@ export default function App() {
       setAuditEvents((prev) =>
         prev.map((a) =>
           a.action_id === pendingConfirmDecision.action_id
-            ? { ...a, decision: 'BLOCK', execution_status: 'NOT_EXECUTED', reason: `Denied by human operator (${approvedBy})` }
+            ? { ...a, decision: 'BLOCK', execution_status: 'NOT_EXECUTED', reason: `Denied by backend re-validation after human approval (${approvedBy})`, approved_by: approvedBy }
             : a
         )
       );
@@ -179,6 +211,18 @@ export default function App() {
 
     setPendingConfirmDecision(null);
     setPendingConfirmProposal(null);
+
+    // Try to sync with authoritative backend data
+    if (backendOnline) {
+      const traj = await defaultTripwireClient.getTrajectory(sessionId);
+      if (traj && traj.events) {
+        setEvents(traj.events);
+      }
+      const audit = await defaultTripwireClient.getAudit(sessionId);
+      if (audit && audit.events) {
+        setAuditEvents(audit.events);
+      }
+    }
   };
 
   return (
